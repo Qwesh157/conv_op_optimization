@@ -34,14 +34,14 @@ void direct_conv2dcpu(float* input, float* filter, float* output, int N, int C, 
     
     for(int n = 0; n < N; n++)
     {
-        for(int k = 0; k< k; k++)
+        for(int k = 0; k< K; k++)
         {
             for(int oh=0; oh<Oh; oh++)
             {
                 for(int ow = 0; ow< Ow; ow++)
                 { 
                     float sum = 0.0;
-                    for(int c = 0; c < c; c++)
+                    for(int c = 0; c < C; c++)
                     {                       
                         for(int r = 0; r < R; r++)
                         {
