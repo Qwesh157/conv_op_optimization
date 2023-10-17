@@ -1,9 +1,9 @@
-# conv_op_optimization
-## introduction
+# Convolution Operator Optimization
+## Introduction
 
 This project is about convolution operator optimization on GPU/DCU
 
-## content
+## Content
 
 [/cpu](https://github.com/Qwesh157/conv_op_optimization/tree/main/cpu) Basic implementation on cpu  
 [/cuda](https://github.com/Qwesh157/conv_op_optimization/tree/main/cuda) Implementation on GPU  
