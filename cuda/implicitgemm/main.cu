@@ -73,7 +73,8 @@ int main(int argc, char **argv)
     param.v = v;
     param.p = p;
     param.q = q;
-
+    param.Oh = outh;
+    param.Ow = outw;
     /********************************** step 2****************************/
 
 
