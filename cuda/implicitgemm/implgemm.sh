@@ -1,6 +1,7 @@
 make clean
 make
-echo "N  H  W  C R S  K";
+echo "##### Start test #####";
+echo " N  H  W  C R S  K";
 for case_k in {1..2}
 do for case_c in {1..2}
     do for case_size in {1..2}
@@ -13,3 +14,4 @@ do for case_c in {1..2}
         done;
     done;
 done;
+echo "##### Test finish! #####";

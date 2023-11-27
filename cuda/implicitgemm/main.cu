@@ -101,7 +101,7 @@ int main(int argc, char **argv)
     cudaEventElapsedTime(&time_elapsed, start, stop);
     float timePerConv = time_elapsed / iternum;
     double gflops = flopsPerConv / (timePerConv / 1000.0f);
-    printf("%d %d %d %d %d %d %d\n", n, h, w, c, r, s, k);
+    printf("%2d %2d %2d %2d %d %d %2d\n", n, h, w, c, r, s, k);
     printf("time: %f ms\n", timePerConv);
     printf("Performance :%f GFlops\n",  gflops);
 
