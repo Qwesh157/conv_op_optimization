@@ -1,7 +1,8 @@
 #include <cuda_runtime.h>
 #include "conv2d.h"
-
-/*选手自己实现的kernel*/
+/*
+    Naive version
+*/
 __global__ void implgemm(param_t param)
 {
 

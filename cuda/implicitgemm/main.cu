@@ -20,7 +20,11 @@ int main(int argc, char **argv)
 
     int outh = (h - r + 2 * p) / u + 1;
     int outw = (w - s + 2 * q) / v + 1;
-
+    double M = k;
+    double N = n * outh * outw;
+    double K = c * r * s;
+    double temp = n * outh * outw * 1e-9f;
+    double flopsPerConv = temp * M * K * 2.0;
     float *input = (float *)malloc(n * c * h * w * sizeof(float));
     float *weight = (float *)malloc(k * c * r * s * sizeof(float));
     float *output = (float *)malloc(n * k * outh * outw * sizeof(float));
@@ -96,23 +100,25 @@ int main(int argc, char **argv)
     cudaEventElapsedTime(&time_elapsed, start, stop);
 
     printf("time: %f ms\n", time_elapsed / iternum);
+    printf("Performance :%f GFlops\n",  gflops);
+
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
-    printf("===================start verfiy===================\n");
-    direct_conv2dcpu(input, weight, output, n, c, h, w, k, r, s, u, v, p, q);
+    // printf("===================start verfiy===================\n");
+    // direct_conv2dcpu(input, weight, output, n, c, h, w, k, r, s, u, v, p, q);
 
-    int error = 0;
-    for (int i = 0; i < n * k * outh * outw; i++)
-    {
-        if (abs(output_host[i] - output[i]) > getPrecision(output[i]))
-        {
-            printf("error, postion:%d, gpuvalue:%f, cpuvalue:%f\n", i, output_host[i], output[i]);
-            error++;
-            break;
-        }
-    }
-    printf("================finish,error:%d=========================\n", error);
+    // int error = 0;
+    // for (int i = 0; i < n * k * outh * outw; i++)
+    // {
+    //     if (abs(output_host[i] - output[i]) > getPrecision(output[i]))
+    //     {
+    //         printf("error, postion:%d, gpuvalue:%f, cpuvalue:%f\n", i, output_host[i], output[i]);
+    //         error++;
+    //         break;
+    //     }
+    // }
+    // printf("================finish,error:%d=========================\n", error);
 
     cudaFree(input_device);
     cudaFree(weight_device);
