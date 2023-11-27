@@ -4,6 +4,7 @@ for case_k in {1..2}
 do for case_c in {1..2}
     do for case_size in {1..2}
         do 
+        echo "N , H, W, C, R, S, K";
         C=$[ $case_c * 32 ]
         H=$[ $case_size * 64 ]
         W=$[ $case_size * 64 ]

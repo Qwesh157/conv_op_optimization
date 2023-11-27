@@ -12,5 +12,5 @@ This project is about convolution operator optimization on GPU/DCU
 
 ```bash
 $ cd cuda/implicitgemm
-$ sh implgemm.sh
+$ bash implgemm.sh
 ```
