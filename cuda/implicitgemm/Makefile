@@ -1,5 +1,5 @@
 CC=nvcc
-TARGET := implgemm_OPT
+TARGET := implgemm_1_1
 
 CXXFLAGS += -arch=sm_60
 INCLUDES  += -I./include

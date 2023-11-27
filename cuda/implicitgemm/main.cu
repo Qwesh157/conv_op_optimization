@@ -98,8 +98,9 @@ int main(int argc, char **argv)
 
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&time_elapsed, start, stop);
-
-    printf("time: %f ms\n", time_elapsed / iternum);
+    float timePerConv = time_elapsed / iternum;
+    double gflops = flopsPerConv / (timePerConv / 1000.0f);
+    printf("time: %f ms\n", timePerConv);
     printf("Performance :%f GFlops\n",  gflops);
 
     cudaEventDestroy(start);
