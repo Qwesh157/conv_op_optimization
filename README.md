@@ -14,3 +14,5 @@ This project is about convolution operator optimization on GPU/DCU
 $ cd cuda/implicitgemm
 $ bash implgemm.sh
 ```
+
+If you want to change the version of implgemm,just change TARGET in Makefile
