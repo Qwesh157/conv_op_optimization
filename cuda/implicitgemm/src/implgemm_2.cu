@@ -50,8 +50,14 @@ __global__ void implgemm(param_t param)
         int curH = posh_ori + curR;                            // input h
         int curW = posw_ori + curS;                            // input w
         int inOffsetTmp = curC * inChannelOffset + curH * param.w + curW;
-        smeminput[ty][tx] = param.input[inOffset + inOffsetTmp];
-
+        if (curH >= 0 && curW >= 0 && curW < param.w && curH < param.h)
+        {
+            smeminput[ty][tx] = param.input[inOffset + inOffsetTmp];
+        }
+        else
+        {
+            smeminput[ty][tx] = 0.0;
+        }
         __syncthreads();
 #pragma unroll
         for (int subcrs = 0; subcrs < 16; ++subcrs)

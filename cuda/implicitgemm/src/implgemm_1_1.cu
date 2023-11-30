@@ -1,8 +1,6 @@
 #include <cuda_runtime.h>
 #include "conv2d.h"
-/*
-    合并KRS维度并使用shared memory减少global memory的访问次数
-*/
+
 __global__ void implgemm(param_t param)
 {
     int tx = threadIdx.x;
@@ -50,7 +48,10 @@ __global__ void implgemm(param_t param)
 #pragma unroll
         for (int subcrs = 0; subcrs < 16; ++subcrs)
         {
-            sum += smemweight[ty][subcrs] * smeminput[subcrs][tx];
+            if (curH >= 0 && curW >= 0 && curW < param.w && curH < param.h)
+            {
+                sum += smemweight[ty][subcrs] * smeminput[subcrs][tx];
+            }
         }
         __syncthreads();
     }
@@ -78,7 +79,6 @@ void launch_implgemm(param_t param)
 
     int outh = (h - r + 2 * p) / u + 1;
     int outw = (w - s + 2 * q) / v + 1;
-
 
     int blockx = ((outh * outw + 15) / 16); // blockx  number
     int blocky = (k + 15) / 16;             // blocky  number
