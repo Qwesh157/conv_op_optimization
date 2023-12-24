@@ -1,7 +1,7 @@
 # Convolution Operator Optimization
 ## Introduction
 
-This project is about convolution operator optimization on GPU/DCU
+This project is about convolution operator optimization on GPU
 
 ## Content
 
