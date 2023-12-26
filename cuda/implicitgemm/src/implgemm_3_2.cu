@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include "conv2d.h"
 /*
-    外积实现矩阵乘、重新安排线程、smem padding避免bank conflict
+    外积实现矩阵乘，重新安排线程、smem padding、ldg与sts分离避免bank conflict
 */
 __global__ void implgemm(param_t param)
 {
@@ -25,6 +25,9 @@ __global__ void implgemm(param_t param)
 
     __shared__ float smeminput[8 * 128];
     __shared__ float smemweight[8 * 132];
+
+    float weight_ldg_reg[4];
+    float input_ldg_reg[4];
     // 当前线程处理的数据点在oh、ow上的坐标
     int posh_ori[4];
     int posw_ori[4];
@@ -61,20 +64,20 @@ __global__ void implgemm(param_t param)
 
     for (int crs = 0; crs < param.r * param.s * param.c; crs += 8)
     {
+        //ldg
         int weiOffsetTmp = crs + tx % 8;
 #pragma unroll
         for (int i = 0; i < 4; ++i)
         {
             if (weiOffsetTmp < weightKOffset)
             {
-                smemweight[weight_sts_addr + i] = param.weight[weiOffset + weiOffsetTmp + i * weightKOffset];
+                weight_ldg_reg[i] = param.weight[weiOffset + weiOffsetTmp + i * weightKOffset];
             }
             else
             {
-                smemweight[weight_sts_addr + i] = 0.0;
+                weight_ldg_reg[i] = 0.0;
             }
         }
-
         int curC = (crs + tx / 32) / (param.r * param.s);             // channel offset
         int curR = ((crs + tx / 32) % (param.r * param.s)) / param.s; // kernel r offset
         int curS = ((crs + tx / 32) % (param.r * param.s)) % param.s; // kernel s offset
@@ -87,13 +90,22 @@ __global__ void implgemm(param_t param)
             int inOffsetTmp = curC * inChannelOffset + curH * param.w + curW;
             if (curH >= 0 && curW >= 0 && curW < param.w && curH < param.h)
             {
-                smeminput[input_sts_addr + i * 32] = param.input[inOffset + inOffsetTmp];
+                input_ldg_reg[i] = param.input[inOffset + inOffsetTmp];
             }
             else
             {
-                smeminput[input_sts_addr + i * 32] = 0.0;
+                input_ldg_reg[i] = 0.0;
             }
         }
+        //sts
+        for (int i = 0; i < 4; ++i)
+        {
+            smemweight[weight_sts_addr + i] = weight_ldg_reg[i];  
+        }
+        for (int i = 0; i < 4; ++i)
+        {
+            smeminput[input_sts_addr + i * 32] = input_ldg_reg[i];  
+        } 
         __syncthreads();
 #pragma unroll
         for (int subcrs = 0; subcrs < 8; ++subcrs)
