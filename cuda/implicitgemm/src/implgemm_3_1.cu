@@ -57,18 +57,18 @@ __global__ void implgemm(param_t param)
         }
     }
 
-    for (int i = 0; i < param.r * param.s * param.c; i += 8)
+    for (int crs = 0; crs < param.r * param.s * param.c; crs += 8)
     {
-        int weiOffsetTmp = i + tx % 8;
+        int weiOffsetTmp = crs + tx % 8;
 #pragma unroll
         for (int i = 0; i < 4; ++i)
         {
             smemweight[weight_sts_addr + i] = param.weight[weiOffset + weiOffsetTmp + i * weightKOffset];
         }
 
-        int curC = (i + tx / 32) / (param.r * param.s);             // channel offset
-        int curR = ((i + tx / 32) % (param.r * param.s)) / param.s; // kernel r offset
-        int curS = ((i + tx / 32) % (param.r * param.s)) % param.s; // kernel s offset
+        int curC = (crs + tx / 32) / (param.r * param.s);             // channel offset
+        int curR = ((crs + tx / 32) % (param.r * param.s)) / param.s; // kernel r offset
+        int curS = ((crs + tx / 32) % (param.r * param.s)) % param.s; // kernel s offset
 
 #pragma unroll
         for (int i = 0; i < 4; ++i)
