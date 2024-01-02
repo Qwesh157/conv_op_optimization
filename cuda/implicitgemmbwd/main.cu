@@ -21,10 +21,15 @@ int main(int argc, char **argv)
     int outh = (h - r + 2 * p) / u + 1;
     int outw = (w - s + 2 * q) / v + 1;
     double M = k;
-    double N = n * outh * outw;
-    double K = c * r * s;
-    double temp = n * outh * outw * 1e-9f;
-    double flopsPerConv = temp * M * K * 2.0;
+    double N = c * r * s;
+    double K = n * outh * outw;
+    double temp = K * 1e-9f;
+    double flopsPerConv = temp * M * N * 2.0;
+    M = c;
+    N = n * h * w;
+    K = k * r * s;
+    temp = N * 1e-9f;
+    flopsPerConv += temp * M * K * 2.0;
     float *input = (float *)malloc(n * c * h * w * sizeof(float));
     float *grad_input = (float *)malloc(n * c * h * w * sizeof(float));
     float *grad_input_host = (float *)malloc(n * c * h * w * sizeof(float));
@@ -42,19 +47,19 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < n * c * h * w; i++)
     {
-        input[i] = (rand() % 255) ;
+        input[i] = (rand() % 255) / 255.0;
         grad_input[i] = 0.0;
     }
 
     for (int i = 0; i < k * c * r * s; i++)
     {
-        weight[i] = (rand() % 255) ;
+        weight[i] = (rand() % 255) / 255.0;
         grad_weight[i] = 0.0;
     }
 
     for (int i = 0; i < n * k * outh * outw; i++)
     {
-        grad_output[i] = (rand() % 255) ;
+        grad_output[i] = (rand() % 255) / 255.0;
     }
 
     cudaMemcpy(input_device, input, n * c * h * w * sizeof(float), cudaMemcpyHostToDevice);
@@ -91,6 +96,7 @@ int main(int argc, char **argv)
     launch_implgemmbwd(param);
 
     cudaMemcpy(grad_input_host, grad_input_device, n * c * h * w * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(grad_weight_host, grad_weight_device, k * c * r * s * sizeof(float), cudaMemcpyDeviceToHost);
 
     /*******************************cost time test************************************/
     cudaEvent_t start, stop;
@@ -120,6 +126,7 @@ int main(int argc, char **argv)
     // verify
     // printf("===================start verfiy===================\n");
     // direct_conv2dbwddatacpu(grad_input, weight, grad_output, n, c, h, w, k, r, s, u, v, p, q, outh, outw);
+    // direct_conv2dbwdfiltercpu(input, grad_weight, grad_output, n, c, h, w, k, r, s, u, v, p, q, outh, outw);
 
     // int bwddataerror = 0;
     // for (int i = 0; i < n * c * h * w; i++)
@@ -133,6 +140,18 @@ int main(int argc, char **argv)
     // }
     // printf("========finish, Backward data error:%d=============\n", bwddataerror);
 
+    // printf("===================start verfiy===================\n");
+    // int bwdfiltererror = 0;
+    // for (int i = 0; i < k * c * r * s; i++)
+    // {
+    //     if (abs(grad_weight_host[i] - grad_weight[i]) > getPrecision(grad_weight[i]))
+    //     {
+    //         printf("Backward filter error, postion:%d, gpuvalue:%f, cpuvalue:%f\n", i, grad_weight_host[i], grad_weight[i]);
+    //         bwdfiltererror++;
+    //         break;
+    //     }
+    // }
+    // printf("========finish, Backward filter error:%d===========\n", bwdfiltererror);
     cudaFree(input_device);
     cudaFree(grad_input_device);
     cudaFree(weight_device);
