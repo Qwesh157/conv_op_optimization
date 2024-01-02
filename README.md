@@ -17,3 +17,23 @@ $ bash implgemm.sh
 ```
 
 If you want to change the version of program,just change TARGET in Makefile
+
+## Verification
+
+There is verification code in main.cu, which was annotated due to slow running.
+
+// printf("===================start verfiy===================\n");
+// direct_conv2dcpu(input, weight, output, n, c, h, w, k, r, s, u, v, p, q);
+// int error = 0;
+// for (int i = 0; i < n * k * outh * outw; i++)
+// {
+//     if (abs(output_host[i] - output[i]) > getPrecision(output[i]))
+//     {
+//         printf("error, postion:%d, gpuvalue:%f, cpuvalue:%f\n", i, output_host[i], output[i]);
+//         error++;
+//         break;
+//     }
+// }
+// printf("================finish,error:%d=========================\n", error);
+
+If you need to verify the result, just unannotate the above code to verify the correctness of the results.
