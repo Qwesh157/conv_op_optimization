@@ -21,7 +21,7 @@ If you want to change the version of program,just change TARGET in Makefile
 ## Verification
 
 There is verification code in main.cu, which was annotated due to slow running.
-
+```cpp
 // printf("===================start verfiy===================\n");
 // direct_conv2dcpu(input, weight, output, n, c, h, w, k, r, s, u, v, p, q);
 // int error = 0;
@@ -35,5 +35,5 @@ There is verification code in main.cu, which was annotated due to slow running.
 //     }
 // }
 // printf("================finish,error:%d=========================\n", error);
-
+```
 If you need to verify the result, just unannotate the above code to verify the correctness of the results.
