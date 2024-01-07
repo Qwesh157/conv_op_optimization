@@ -45,8 +45,8 @@ void direct_conv2dbwddatacpu(float *grad_input, float *filter, float *grad_outpu
                             for (int s = 0; s < S; s++)
                             {
                                 // 不考虑padding与stride参数，进行full mode卷积
-                                int oh = h + r - R + 1;
-                                int ow = w + s - S + 1;
+                                int oh = h + r - (R - 1 - P);
+                                int ow = w + s - (S - 1 - Q);
                                 if (ow >= 0 && oh >= 0 && ow < Ow && oh < Oh)
                                 {
                                     sum += (grad_output[n * K * Oh * Ow + k * (Oh * Ow) + oh * Ow + ow] * filter[k * R * S * C + c * R * S + (R * S - 1 - (r * S + s))]);
@@ -80,11 +80,11 @@ void direct_conv2dbwdfiltercpu(float *input, float *grad_filter, float *grad_out
                             {
                                 float res;
                                 // 不考虑padding与stride参数，进行valid mode卷积
-                                int ih = r + oh;
-                                int iw = s + ow;
+                                int ih = r + oh - P;
+                                int iw = s + ow - Q;
                                 if (iw >= 0 && ih >= 0 && iw < W && ih < H)
                                 {
-                                    //使用 Kahan 求和公式提高规约精度
+                                    //使用kahan算法提高规约精度
                                     y -= (input[n * C * H * W + c * (W * H) + ih * W + iw] * grad_output[n * K * Oh * Ow + k * Oh * Ow + oh * Ow + ow]);
                                     res = sum - y;
                                     y += (res - sum);

@@ -34,8 +34,8 @@ __global__ void implgemmbwddata(param_t param)
 #pragma unroll
     for (int i = 0; i < 4; ++i)
     {
-        posOh_ori[i] = ((bx * 128 + tx % 32 + i * 32) / param.w) - param.r + 1;
-        posOw_ori[i] = ((bx * 128 + tx % 32 + i * 32) % param.w) - param.s + 1;
+        posOh_ori[i] = ((bx * 128 + tx % 32 + i * 32) / param.w) - (param.r - 1 - param.p);
+        posOw_ori[i] = ((bx * 128 + tx % 32 + i * 32) % param.w) - (param.s - 1 - param.q);
     }
 
     int outOffset = z * param.k * param.Oh * param.Ow;
@@ -196,8 +196,8 @@ __global__ void implgemmbwdweight(param_t param)
 #pragma unroll
     for (int i = 0; i < 4; ++i)
     {
-        posh_ori[i] = ((bx * 128 + tx % 32 + i * 32) / param.s);
-        posw_ori[i] = ((bx * 128 + tx % 32 + i * 32) % param.s);
+        posh_ori[i] = ((bx * 128 + tx % 32 + i * 32) / param.s) - param.p;
+        posw_ori[i] = ((bx * 128 + tx % 32 + i * 32) % param.s) - param.q;
     }
 
     int inOffset = z * param.h * param.w;
@@ -339,8 +339,8 @@ void launch_implgemmbwd(param_t param)
     unsigned int outw = param.Ow;
 
     int blockx = ((h * w + 127) / 128); // blockx  number
-    int blocky = (c + 127) / 128;             // blocky  number
-    int blockz = n;                           // blockz  number
+    int blocky = (c + 127) / 128;       // blocky  number
+    int blockz = n;                     // blockz  number
     // 合并threadx与thready
     int threadx = 256; // threadx number per block
     int thready = 1;   // thready number per block
