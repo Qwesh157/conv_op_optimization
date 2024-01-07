@@ -5,6 +5,8 @@ This project is about convolution operator optimization on GPU
 
 ## Content
 
+This [blog](https://zhuanlan.zhihu.com/p/661879423) provides a detailed introduction to the optimization steps.
+
 [/cuda](https://github.com/Qwesh157/conv_op_optimization/tree/main/cuda) Implementation on GPU  
 &emsp;&emsp;[/implicitgemm](https://github.com/Qwesh157/conv_op_optimization/tree/main/cuda/implicitgemm) implicit gemm convolution implementation  
 &emsp;&emsp;[/implicitgemmbwd](https://github.com/Qwesh157/conv_op_optimization/tree/main/cuda/implicitgemmbwd) implicit gemm convolution backward implementation  
