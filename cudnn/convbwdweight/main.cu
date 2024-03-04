@@ -200,6 +200,7 @@ int main(int argc, char **argv)
     cudaEventDestroy(stop);
 
     // printf("===================start verfiy===================\n");
+    // direct_conv2dbwdfiltercpu(input, grad_weight, grad_output, n, c, h, w, k, r, s, u, v, p, q, outh, outw);
     // int bwdfiltererror = 0;
     // for (int i = 0; i < k * c * r * s; i++)
     // {
