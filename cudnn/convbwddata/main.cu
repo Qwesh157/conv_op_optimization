@@ -199,7 +199,7 @@ int main(int argc, char **argv)
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
-     // printf("===================start verfiy===================\n");
+    // printf("===================start verfiy===================\n");
     // direct_conv2dbwddatacpu(grad_input, weight, grad_output, n, c, h, w, k, r, s, u, v, p, q, outh, outw);
 
     // int bwddataerror = 0;
