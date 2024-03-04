@@ -99,11 +99,6 @@ int main(int argc, char **argv)
 
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&time_elapsed, start, stop);
-    float timePerConv = time_elapsed / iternum;
-    double gflops = flopsPerConv / (timePerConv / 1000.0f);
-    printf("%2d %2d %2d %2d %d %d %2d\n", n, h, w, c, r, s, k);
-    printf("time: %f ms\n", timePerConv);
-    printf("Performance :%f GFlops\n",  gflops);
 
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
@@ -123,6 +118,12 @@ int main(int argc, char **argv)
     // }
     // printf("================finish,error:%d=========================\n", error);
 
+    float timePerConv = time_elapsed / iternum;
+    double gflops = flopsPerConv / (timePerConv / 1000.0f);
+    printf("%2d %2d %2d %2d %d %d %2d\n", n, h, w, c, r, s, k);
+    printf("time: %f ms\n", timePerConv);
+    printf("Performance :%f GFlops\n",  gflops);
+    
     cudaFree(input_device);
     cudaFree(weight_device);
     cudaFree(output_device);

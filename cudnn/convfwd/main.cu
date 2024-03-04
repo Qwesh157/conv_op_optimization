@@ -1,21 +1,21 @@
 #include <stdio.h>
 #include <cuda_runtime.h>
-
+#include "verify.h"
 #include "cudnn.h"
 
 int main(int argc, char **argv)
 {
-    int n = atoi(argv[1]);
-    int c = atoi(argv[2]);
-    int h = atoi(argv[3]);
-    int w = atoi(argv[4]);
-    int k = atoi(argv[5]);
-    int r = atoi(argv[6]);
-    int s = atoi(argv[7]);
-    int u = atoi(argv[8]);
-    int v = atoi(argv[9]);
-    int p = atoi(argv[10]);
-    int q = atoi(argv[11]);
+    unsigned int n = atoi(argv[1]);
+    unsigned int c = atoi(argv[2]);
+    unsigned int h = atoi(argv[3]);
+    unsigned int w = atoi(argv[4]);
+    unsigned int k = atoi(argv[5]);
+    unsigned int r = atoi(argv[6]);
+    unsigned int s = atoi(argv[7]);
+    unsigned int u = atoi(argv[8]);
+    unsigned int v = atoi(argv[9]);
+    unsigned int p = atoi(argv[10]);
+    unsigned int q = atoi(argv[11]);
 
     int outh = (h - r + 2 * p) / u + 1;
     int outw = (w - s + 2 * q) / v + 1;
@@ -24,36 +24,37 @@ int main(int argc, char **argv)
     double K = c * r * s;
     double temp = n * outh * outw * 1e-9f;
     double flopsPerConv = temp * M * K * 2.0;
-    float *pIn = (float *)malloc(n * c * h * w * sizeof(float));
-    float *pWeight = (float *)malloc(k * c * r * s * sizeof(float));
-    float *pOut = (float *)malloc(n * k * outh * outw * sizeof(float));
-    float *pOut_host = (float *)malloc(n * k * outh * outw * sizeof(float));
+    float *input = (float *)malloc(n * c * h * w * sizeof(float));
+    float *weight = (float *)malloc(k * c * r * s * sizeof(float));
+    float *output = (float *)malloc(n * k * outh * outw * sizeof(float));
+    float *output_host = (float *)malloc(n * k * outh * outw * sizeof(float));
 
-    float *pIn_device, *pWeight_device, *pOut_device_cudnn;
-    cudaMalloc((void **)&pIn_device, n * c * h * w * sizeof(float));
-    cudaMalloc((void **)&pWeight_device, k * c * r * s * sizeof(float));
-    cudaMalloc((void **)&pOut_device_cudnn, n * k * outh * outw * sizeof(float));
+    float *input_device, *weight_device, *output_device;
+    cudaMalloc((void **)&input_device, n * c * h * w * sizeof(float));
+    cudaMalloc((void **)&weight_device, k * c * r * s * sizeof(float));
+    cudaMalloc((void **)&output_device, n * k * outh * outw * sizeof(float));
 
     for (int i = 0; i < n * c * h * w; i++)
     {
-        pIn[i] = (rand() % 255) / 255.0;
+        input[i] = (rand() % 255) / 255.0;
     }
 
     for (int i = 0; i < k * c * r * s; i++)
     {
-        pWeight[i] = (rand() % 255) / 255.0;
+        weight[i] = (rand() % 255) / 255.0;
     }
 
     for (int i = 0; i < n * k * outh * outw; i++)
     {
-        pOut[i] = 0.0;
-        pOut_host[i] = 0.0;
+        output[i] = 0.0;
+        output_host[i] = 0.0;
     }
 
-    cudaMemcpy(pIn_device, pIn, n * c * h * w * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(pWeight_device, pWeight, k * c * r * s * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(pOut_device_cudnn, pOut, n * k * outh * outw * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(input_device, input, n * c * h * w * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(weight_device, weight, k * c * r * s * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(output_device, output, n * k * outh * outw * sizeof(float), cudaMemcpyHostToDevice);
 
+    
     cudnnStatus_t status;
     cudnnHandle_t handle;
     status = cudnnCreate(&handle);
@@ -100,15 +101,6 @@ int main(int argc, char **argv)
                                              /*computeType=*/CUDNN_DATA_FLOAT);
     if (status != CUDNN_STATUS_SUCCESS)
         printf("cudnnSetTensor4dDescriptor convolution_descriptor failed\n");
-    status = cudnnGetConvolution2dForwardOutputDim(convolution_descriptor,
-                                                   input_descriptor,
-                                                   kernel_descriptor,
-                                                   &n,
-                                                   &c,
-                                                   &h,
-                                                   &w);
-    if (status != CUDNN_STATUS_SUCCESS)
-        printf("cudnnGetConvolution2dForwardOutputDim failed\n");
 
     // create output descriptor
     cudnnTensorDescriptor_t output_descriptor;
@@ -127,14 +119,16 @@ int main(int argc, char **argv)
 
     cudnnConvolutionFwdAlgoPerf_t perfResults[9];
     int returnedAlgoCount;
-    cudnnFindConvolutionForwardAlgorithm(handle,
-                                         input_descriptor,
-                                         kernel_descriptor,
-                                         convolution_descriptor,
-                                         output_descriptor,
-                                         9,
-                                         &returnedAlgoCount,
-                                         perfResults);
+    status = cudnnFindConvolutionForwardAlgorithm(handle,
+                                                  input_descriptor,
+                                                  kernel_descriptor,
+                                                  convolution_descriptor,
+                                                  output_descriptor,
+                                                  9,
+                                                  &returnedAlgoCount,
+                                                  perfResults);
+    if (status != CUDNN_STATUS_SUCCESS)
+        printf("cudnnFindConvolutionForwardAlgorithm failed\n");
     
     // print all available convolution forward algorithm , ordered by time
     // for (int i = 0; i < 9; i++)
@@ -153,7 +147,7 @@ int main(int argc, char **argv)
     // CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD              = 6
     // CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED     = 7
     // CUDNN_CONVOLUTION_FWD_ALGO_COUNT                 = 8
-    
+
     cudnnConvolutionFwdAlgo_t convolution_algorithm = (cudnnConvolutionFwdAlgo_t)0;  //choose implicit gemm
 
     int size;
@@ -174,13 +168,14 @@ int main(int argc, char **argv)
     float alpha = 1.0, beta = 0.0;
 
     status = cudnnConvolutionForward(handle, &alpha,
-                                     input_descriptor, pIn_device, kernel_descriptor, pWeight_device,
+                                     input_descriptor, input_device, kernel_descriptor, weight_device,
                                      convolution_descriptor, convolution_algorithm,
                                      extra, size, &beta,
-                                     output_descriptor, pOut_device_cudnn);
+                                     output_descriptor, output_device);
 
     if (status != CUDNN_STATUS_SUCCESS)
         printf("Not Successed!\n");
+    cudaMemcpy(output_host, output_device, n * k * outh * outw * sizeof(float), cudaMemcpyDeviceToHost);
 
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
@@ -192,32 +187,48 @@ int main(int argc, char **argv)
     for (int i = 0; i < iternum; i++)
     {
         cudnnConvolutionForward(handle, &alpha,
-                             input_descriptor, pIn_device, kernel_descriptor, pWeight_device,
+                             input_descriptor, input_device, kernel_descriptor, weight_device,
                              convolution_descriptor, convolution_algorithm,
                              extra, size, &beta,
-                             output_descriptor, pOut_device_cudnn);
+                             output_descriptor, output_device);
     }
     cudaEventRecord(stop, 0);
 
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&time_elapsed, start, stop);
-    float timePerConv = time_elapsed / iternum;
-    double gflops = flopsPerConv / (timePerConv / 1000.0f);
+    
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
+    // printf("===================start verfiy===================\n");
+    // direct_conv2dcpu(input, weight, output, n, c, h, w, k, r, s, u, v, p, q);
+
+    // int error = 0;
+    // for (int i = 0; i < n * k * outh * outw; i++)
+    // {
+    //     if (abs(output_host[i] - output[i]) > getPrecision(output[i]))
+    //     {
+    //         printf("error, postion:%d, gpuvalue:%f, cpuvalue:%f\n", i, output_host[i], output[i]);
+    //         error++;
+    //         break;
+    //     }
+    // }
+    // printf("================finish,error:%d=========================\n", error);
+
+    float timePerConv = time_elapsed / iternum;
+    double gflops = flopsPerConv / (timePerConv / 1000.0f);
     printf("%2d %2d %2d %2d %d %d %2d\n", n, h, w, c, r, s, k);
     printf("time: %f ms\n", timePerConv);
     printf("Performance :%f GFlops\n",  gflops);
 
-    cudaFree(pIn_device);
-    cudaFree(pWeight_device);
-    cudaFree(pOut_device_cudnn);
+    cudaFree(input_device);
+    cudaFree(weight_device);
+    cudaFree(output_device);
 
-    free(pIn);
-    free(pWeight);
-    free(pOut);
-    free(pOut_host);
+    free(input);
+    free(weight);
+    free(output);
+    free(output_host);
 
     return 0;
 }
