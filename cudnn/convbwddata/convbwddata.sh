@@ -1,5 +1,5 @@
 rm -f ./*.o;
-nvcc main.cu -o convbwddata -lcudnn;
+nvcc main.cu -o convbwddata -lcudnn -I./include;
 echo "##### Start test #####";
 echo " N  H  W  C R S  K";
 for case_k in {1..2}
