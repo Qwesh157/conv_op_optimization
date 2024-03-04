@@ -212,12 +212,12 @@ int main(int argc, char **argv)
     // }
     // printf("========finish, Backward filter error:%d===========\n", bwdfiltererror);
 
+    float timePerConv = time_elapsed / iternum;
+    double gflops = flopsPerConv / (timePerConv / 1000.0f);
     printf("%2d %2d %2d %2d %d %d %2d\n", n, h, w, c, r, s, k);
     printf("time: %f ms\n", timePerConv);
     printf("Performance :%f GFlops\n",  gflops);
-    float timePerConv = time_elapsed / iternum;
-    double gflops = flopsPerConv / (timePerConv / 1000.0f);
-
+    
     cudaFree(input_device);
     cudaFree(grad_weight_device);
     cudaFree(grad_output_device);
