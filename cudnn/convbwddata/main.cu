@@ -102,6 +102,18 @@ int main(int argc, char **argv)
     if (status != CUDNN_STATUS_SUCCESS)
         printf("cudnnSetTensor4dDescriptor convolution_descriptor failed\n");
 
+    cudnnMathType_t mathType=CUDNN_FMA_MATH;  //choose FMA or Tensor math
+
+    // CUDNN_DEFAULT_MATH                    = 0,
+    // CUDNN_TENSOR_OP_MATH                  = 1,
+    // CUDNN_TENSOR_OP_MATH_ALLOW_CONVERSION = 2,
+    // CUDNN_FMA_MATH                        = 3,
+
+    status = cudnnSetConvolutionMathType(convolution_descriptor,mathType);
+
+    if (status != CUDNN_STATUS_SUCCESS)
+        printf("cudnnSetConvolutionMathType failed\n");
+
     // create grad output descriptor
     cudnnTensorDescriptor_t grad_output_descriptor;
     status = cudnnCreateTensorDescriptor(&grad_output_descriptor);
