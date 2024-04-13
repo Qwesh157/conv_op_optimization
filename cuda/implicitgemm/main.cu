@@ -27,12 +27,14 @@ int main(int argc, char **argv)
     double flopsPerConv = temp * M * K * 2.0;
     float *input = (float *)malloc(n * c * h * w * sizeof(float));
     float *weight = (float *)malloc(k * c * r * s * sizeof(float));
+    float *bias = (float *)malloc(k * sizeof(float));
     float *output = (float *)malloc(n * k * outh * outw * sizeof(float));
     float *output_host = (float *)malloc(n * k * outh * outw * sizeof(float));
 
-    float *input_device, *weight_device, *output_device;
+    float *input_device, *weight_device, *bias_device, *output_device;
     cudaMalloc((void **)&input_device, n * c * h * w * sizeof(float));
     cudaMalloc((void **)&weight_device, k * c * r * s * sizeof(float));
+    cudaMalloc((void **)&bias_device, k * sizeof(float));
     cudaMalloc((void **)&output_device, n * k * outh * outw * sizeof(float));
 
     for (int i = 0; i < n * c * h * w; i++)
@@ -45,6 +47,11 @@ int main(int argc, char **argv)
         weight[i] = (rand() % 255) / 255.0;
     }
 
+    for (int i = 0; i < k * c * r * s; i++)
+    {
+        bias[i] = (rand() % 255) / 255.0;
+    }
+
     for (int i = 0; i < n * k * outh * outw; i++)
     {
         output[i] = 0.0;
@@ -53,6 +60,7 @@ int main(int argc, char **argv)
 
     cudaMemcpy(input_device, input, n * c * h * w * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(weight_device, weight, k * c * r * s * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(bias_device, bias, k * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(output_device, output, n * k * outh * outw * sizeof(float), cudaMemcpyHostToDevice);
 
     //Convolution parameter
@@ -61,6 +69,7 @@ int main(int argc, char **argv)
 
     param.input = input_device;
     param.weight = weight_device;
+    param.bias = bias_device;
     param.output = output_device;
     param.n = n;
     param.c = c;
@@ -104,7 +113,7 @@ int main(int argc, char **argv)
     cudaEventDestroy(stop);
 
     // printf("===================start verfiy===================\n");
-    // direct_conv2dcpu(input, weight, output, n, c, h, w, k, r, s, u, v, p, q);
+    // direct_conv2dcpu(input, weight, bias, output, n, c, h, w, k, r, s, u, v, p, q);
 
     // int error = 0;
     // for (int i = 0; i < n * k * outh * outw; i++)

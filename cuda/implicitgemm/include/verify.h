@@ -27,7 +27,7 @@ float getPrecision(float tmp)
     }
     return eNum;
 }
-void direct_conv2dcpu(float* input, float* filter, float* output, int N, int C, int H, int W, int K, int R, int S, int U,int V,  int P, int Q)
+void direct_conv2dcpu(float* input, float* filter, float* bias, float* output, int N, int C, int H, int W, int K, int R, int S, int U,int V,  int P, int Q)
 {
     int Oh = (H + 2*P - R)/U + 1;
     int Ow = (W + 2*Q - S)/V + 1;
@@ -56,7 +56,7 @@ void direct_conv2dcpu(float* input, float* filter, float* output, int N, int C, 
                             }                       
                         }
                     }
-                    output[n*K*Oh*Ow + k*Oh*Ow + oh*Ow + ow] = sum;
+                    output[n*K*Oh*Ow + k*Oh*Ow + oh*Ow + ow] = sum + bias[k];
                 }
             }
         }

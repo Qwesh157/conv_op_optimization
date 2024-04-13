@@ -2,6 +2,7 @@ typedef struct
 {
     float*   input;                                   //输入数据地址
     float*   weight;                                  //权值数据地址
+    float*   bias;                                  //权值数据地址
     float*   output;                                  //输出数据地址
     unsigned int      n;                              //batch szie              
     unsigned int      c;                              //channel number          
