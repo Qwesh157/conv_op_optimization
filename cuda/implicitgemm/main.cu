@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         weight[i] = (rand() % 255) / 255.0;
     }
 
-    for (int i = 0; i < k * c * r * s; i++)
+    for (int i = 0; i < k; i++)
     {
         bias[i] = (rand() % 255) / 255.0;
     }
