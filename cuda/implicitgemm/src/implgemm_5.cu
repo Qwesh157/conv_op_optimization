@@ -224,8 +224,8 @@ __global__ void implgemm(param_t param)
         smembias[tx] = param.bias[by * 128 + tx];
     }
 
-    uint32_t C_sts_addr = warp_id * 512 + mma_tid_y * 4 * 8 * 4 + mma_tid_x * 4;
-    uint32_t C_lds_addr = warp_id * 512 + lane_id;
+    uint32_t output_sts_addr = warp_id * 512 + mma_tid_y * 4 * 8 * 4 + mma_tid_x * 4;
+    uint32_t output_lds_addr = warp_id * 512 + lane_id;
 
     uint32_t m_idx = blockIdx.y * 128 + warp_id / 2 * 32;
     uint32_t n_idx = blockIdx.x * 128 + warp_id % 2 * 64 + lane_id;
@@ -245,7 +245,7 @@ __global__ void implgemm(param_t param)
                 for (int subj = 0; subj < 4; ++subj)
                 {
                     // output sts
-                    smemoutput[C_sts_addr + subi * 8 * 4 + subj] = output_frag[i * 4 + subi][j * 4 + subj];
+                    smemoutput[output_sts_addr + subi * 8 * 4 + subj] = output_frag[i * 4 + subi][j * 4 + subj];
                 }
             }
             __syncthreads();
@@ -255,7 +255,7 @@ __global__ void implgemm(param_t param)
             {
                 int outOffset = z * param.k * param.Oh * param.Ow + (m_idx + i * 16 + subk) * param.Oh * param.Ow + n_idx + j * 32;
                 if ((m_idx + i * 16 + subk) < param.k && (n_idx + j * 32) < param.Oh * param.Ow)
-                    param.output[outOffset] = smemoutput[C_lds_addr + subk * 32] + smembias[m_idx + i * 16 + subk];
+                    param.output[outOffset] = smemoutput[output_lds_addr + subk * 32] + smembias[m_idx + i * 16 + subk];
             }
         }
     }
