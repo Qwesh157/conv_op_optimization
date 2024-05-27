@@ -67,7 +67,7 @@ __global__ void implgemm(param_t param)
 #pragma unroll
     for (int i = 0; i < 4; ++i)
     {
-        if (tx % 8 < weightKOffset)
+        if (tx % 8 < weightKOffset && by * 128 + tx / 8 * 4 + i < param.k)
         {
             weight_ldg_reg[i] = param.weight[weiOffset + tx % 8 + i * weightKOffset];
         }
@@ -125,7 +125,7 @@ __global__ void implgemm(param_t param)
 #pragma unroll
         for (int i = 0; i < 4; ++i)
         {
-            if (weiOffsetTmp < weightKOffset)
+            if (weiOffsetTmp < weightKOffset && by * 128 + tx / 8 * 4 + i < param.k)
             {
                 weight_ldg_reg[i] = param.weight[weiOffset + weiOffsetTmp + i * weightKOffset];
             }
