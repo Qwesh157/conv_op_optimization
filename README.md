@@ -4,6 +4,8 @@
 This project is about convolution operator optimization on GPU
 
 ## Content
+ - [x] Cuda core Implicit GEMM forward
+ - [x] Cuda core Implicit GEMM backward
 
 This [blog](https://zhuanlan.zhihu.com/p/661879423) provides a detailed introduction to the optimization steps.
 
@@ -19,7 +21,7 @@ $ cd cuda/implicitgemm
 $ bash implgemm.sh
 ```
 
-If you want to change the version of program,just change TARGET in Makefile
+If you want to change the version of program, just change TARGET in Makefile
 
 ## Verification
 
@@ -40,3 +42,8 @@ There is verification code in main.cu, which was annotated due to slow running.
 // printf("================finish,error:%d=========================\n", error);
 ```
 If you need to verify the result, just unannotate the above code to verify the correctness of the results.
+
+## TODO
+ - [ ] Tensore core Implicit GEMM
+ - [ ] CuTe Implicit GEMM
+ - [ ] Winograd-based convolution
