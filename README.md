@@ -6,6 +6,7 @@ This project is about convolution operator optimization on GPU
 ## Content
  - [x] Cuda core Implicit GEMM forward
  - [x] Cuda core Implicit GEMM backward
+ - [x] CuTe Implicit GEMM
 
 This [blog](https://zhuanlan.zhihu.com/p/661879423) provides a detailed introduction to the optimization steps.
 
@@ -13,6 +14,7 @@ This [blog](https://zhuanlan.zhihu.com/p/661879423) provides a detailed introduc
 &emsp;&emsp;[/implicitgemm](https://github.com/Qwesh157/conv_op_optimization/tree/main/cuda/implicitgemm) implicit gemm convolution implementation  
 &emsp;&emsp;[/implicitgemmbwd](https://github.com/Qwesh157/conv_op_optimization/tree/main/cuda/implicitgemmbwd) implicit gemm convolution backward implementation  
 [/cudnn](https://github.com/Qwesh157/conv_op_optimization/tree/main/cudnn) cuDNN test on GPU  
+[/cute](https://github.com/Qwesh157/conv_op_optimization/tree/main/cute) Using CuTe implement convolution
 
 ## Build and run
 
@@ -45,5 +47,4 @@ If you need to verify the result, just unannotate the above code to verify the c
 
 ## TODO
  - [ ] Tensore core Implicit GEMM
- - [ ] CuTe Implicit GEMM
  - [ ] Winograd-based convolution
