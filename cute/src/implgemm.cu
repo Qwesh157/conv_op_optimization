@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <cuda_runtime.h>
 /*
-    外积实现矩阵乘
+    CuTe Tensor for GEMM-based convolution
 */
 template <typename T, class FilterTensor, class ActivationTensor, class OutputTensor>
 __global__ void implgemm(FilterTensor flt, ActivationTensor act, OutputTensor out, int k, int npq, int rsc)
