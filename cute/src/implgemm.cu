@@ -89,8 +89,6 @@ __global__ void implgemm(FilterTensor flt, ActivationTensor act, OutputTensor ou
         __syncthreads();
     }
 
-    // 计算输出偏移
-    int outOffset;
 #pragma unroll
     for (int i = 0; i < 4; ++i)
     {
