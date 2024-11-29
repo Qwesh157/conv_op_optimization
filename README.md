@@ -46,5 +46,6 @@ There is verification code in main.cu, which was annotated due to slow running.
 If you need to verify the result, just unannotate the above code to verify the correctness of the results.
 
 ## TODO
+ - [ ] Triton Implicit GEMM
  - [ ] Tensor core Implicit GEMM
  - [ ] Winograd-based convolution
